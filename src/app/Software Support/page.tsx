@@ -22,7 +22,7 @@ export default function SoftwareSupport() {
             <p className="mt-3 text-white/60">Trang nay de ban xem thong tin va chi tiet software support.</p>
           </div>
           <Link
-            href="/category"
+            href="/#category"
             className="rounded-full border border-white/15 px-4 py-2 text-sm text-white/80 transition hover:border-white/30 hover:text-white"
           >
             Back to Category

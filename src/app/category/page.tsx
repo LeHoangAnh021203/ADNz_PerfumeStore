@@ -10,6 +10,7 @@ import { FullpageLoader } from "../../components/fullpage-loader"
 import { useGeneration } from "../../contexts/generation-context"
 import { motion } from "framer-motion"
 import { NewProjectSlot } from "../../components/new-project-slot"
+import { Footer } from "@/components/ui/footer"
 
 function normalizeCategory(value: string) {
     return value.trim().toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ")
@@ -49,7 +50,7 @@ const PROJECT_CONFIGS = [
     },
 ]
 
-export default function ClipsPage() {
+export default function ClipsPage({ includeFooter = true }: { includeFooter?: boolean }) {
     const { startGeneration } = useGeneration()
     const router = useRouter()
 
@@ -210,7 +211,7 @@ export default function ClipsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#191919]">
+        <div className="min-h-screen bg-[#191919] flex flex-col">
             <Toaster
                 position="bottom-center"
                 toastOptions={{
@@ -230,7 +231,7 @@ export default function ClipsPage() {
                     transform: showContent ? "translateY(0) scale(1)" : "translateY(20px) scale(0.98)",
                 }}
             >
-                <main ref={mainRef} className="flex-1 min-h-screen p-4 pt-12 sm:p-6 sm:pt-14 md:p-8 md:pt-16">
+                <main ref={mainRef} className="flex-1 p-4 pt-12 sm:p-6 sm:pt-14 md:p-8 md:pt-16">
                     <div className="mx-auto w-full max-w-[288px] sm:max-w-[600px] lg:max-w-[912px]">
                         <div className="flex items-center justify-between h-12 mb-6">
                             <h1 className="text-lg sm:text-xl font-semibold text-white tracking-tight">Category</h1>
@@ -268,6 +269,7 @@ export default function ClipsPage() {
                     </div>
                 </main>
             </div>
+            {includeFooter && <Footer />}
         </div>
     )
 }

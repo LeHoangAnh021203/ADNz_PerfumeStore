@@ -24,8 +24,8 @@ export default function Home() {
           </div>
 
         </div>
-        <div>
-          <ClipsPage />
+        <div id="category">
+          <ClipsPage includeFooter={false} />
         </div>
       </section>
 

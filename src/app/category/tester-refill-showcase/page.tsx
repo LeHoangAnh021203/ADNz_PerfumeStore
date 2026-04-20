@@ -39,7 +39,7 @@ export default function TesterRefillShowcasePage() {
             </p>
           </div>
           <Link
-            href="/category"
+            href="/#category"
             className="rounded-full border border-white/15 px-4 py-2 text-sm text-white/80 transition hover:border-white/30 hover:text-white"
           >
             Back to Category
@@ -60,4 +60,3 @@ export default function TesterRefillShowcasePage() {
     </div>
   )
 }
-
