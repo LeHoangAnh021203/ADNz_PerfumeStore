@@ -61,10 +61,75 @@ const WEBSITE_PAGES = [
   { pathname: "/", label: "Trang chủ" },
   { pathname: "/about-us", label: "Giới thiệu" },
   { pathname: "/pre-order", label: "Đăng ký CTV/Sỉ" },
-  { pathname: "/ListProduct", label: "Danh sách sản phẩm" },
-  { pathname: "/Map", label: "Bản đồ khách truy cập" },
+  { pathname: "/listproduct", label: "Danh sách sản phẩm" },
+  { pathname: "/map", label: "Bản đồ khách truy cập" },
   { pathname: "/chat", label: "Chat tư vấn" },
+  { pathname: "/category", label: "Danh mục sản phẩm" },
+  { pathname: "/category/tester-refill-showcase", label: "Tester / Refill / Showcase" },
+  { pathname: "/software-support", label: "Hỗ trợ phần mềm" },
+  { pathname: "/dashboard", label: "Trang quản trị" },
+  { pathname: "/documents", label: "Tài liệu" },
+  { pathname: "/contact", label: "Liên hệ" },
 ];
+
+const PAGE_LABEL_BY_PATH: Record<string, string> = Object.fromEntries(
+  WEBSITE_PAGES.map((page) => [page.pathname, page.label])
+);
+
+function normalizePathname(pathname: string): string {
+  if (!pathname) return "/";
+
+  let nextPath = pathname.trim();
+
+  try {
+    const parsed = new URL(nextPath);
+    nextPath = parsed.pathname || "/";
+  } catch {
+    // Not a full URL, keep current value.
+  }
+
+  try {
+    nextPath = decodeURIComponent(nextPath);
+  } catch {
+    // Keep undecoded value when malformed.
+  }
+
+  nextPath = nextPath.replace(/\\/g, "/").replace(/\/{2,}/g, "/");
+  if (!nextPath.startsWith("/")) {
+    nextPath = `/${nextPath}`;
+  }
+  if (nextPath.length > 1 && nextPath.endsWith("/")) {
+    nextPath = nextPath.slice(0, -1);
+  }
+
+  const lowerPath = nextPath.toLowerCase();
+  if (lowerPath === "/software support") return "/software-support";
+  return lowerPath;
+}
+
+function toTitleCase(value: string): string {
+  if (!value) return "";
+  return value
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function getPageLabel(pathname: string): string {
+  const normalized = normalizePathname(pathname);
+  const knownLabel = PAGE_LABEL_BY_PATH[normalized];
+  if (knownLabel) {
+    return knownLabel;
+  }
+
+  const segments = normalized
+    .split("/")
+    .filter(Boolean)
+    .map((segment) => toTitleCase(segment.replace(/[-_]+/g, " ")));
+
+  return segments.length > 0 ? segments.join(" / ") : "Trang chủ";
+}
 
 function formatNumber(num: number): string {
   return num.toLocaleString("en-US");
@@ -210,19 +275,39 @@ export function RegionCount() {
 
 export function StatsGrid() {
   const { metrics } = useSharedMapMetrics();
+  const normalizedTopPages = useMemo(() => {
+    const visitsByNormalizedPath = new Map<string, number>();
+
+    metrics.topPages.forEach((page) => {
+      const normalizedPath = normalizePathname(page.pathname);
+      const currentVisits = visitsByNormalizedPath.get(normalizedPath) ?? 0;
+      visitsByNormalizedPath.set(normalizedPath, currentVisits + page.visits);
+    });
+
+    return Array.from(visitsByNormalizedPath.entries())
+      .map(([pathname, visits]) => ({
+        pathname,
+        visits,
+        label: getPageLabel(pathname),
+      }))
+      .sort((a, b) => b.visits - a.visits);
+  }, [metrics.topPages]);
+
   const visitsByPath = useMemo(
-    () => new Map(metrics.topPages.map((page) => [page.pathname, page.visits])),
-    [metrics.topPages]
+    () => new Map(normalizedTopPages.map((page) => [page.pathname, page.visits])),
+    [normalizedTopPages]
   );
+
   const knownPageRows = WEBSITE_PAGES.map((page) => ({
     ...page,
     visits: visitsByPath.get(page.pathname) ?? 0,
   }));
-  const unknownTrackedRows = metrics.topPages
+
+  const unknownTrackedRows = normalizedTopPages
     .filter((page) => !WEBSITE_PAGES.some((known) => known.pathname === page.pathname))
     .map((page) => ({
       pathname: page.pathname,
-      label: page.pathname,
+      label: page.label,
       visits: page.visits,
     }));
   const allPageRows = [...knownPageRows, ...unknownTrackedRows];

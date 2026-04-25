@@ -108,7 +108,7 @@ export function Header() {
 
   return (
     <>
-      <header className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between px-6 py-4 md:px-10">
+      <header className="fixed left-0 right-0 top-0 z-[80] flex items-center justify-between px-4 py-4 md:px-10">
         <Link href="/" className="text-sm font-semibold tracking-tight text-white transition-opacity hover:opacity-70">
         ADNz Perfume
         </Link>
@@ -128,11 +128,31 @@ export function Header() {
         <button
           type="button"
           onClick={() => setIsFormOpen(true)}
-          className="rounded-full border border-white/20 bg-transparent px-5 py-2 text-xs font-medium text-white transition-all hover:bg-white hover:text-black"
+          className="rounded-full border border-white/20 bg-transparent px-3 py-2 text-[11px] font-medium text-white transition-all hover:bg-white hover:text-black md:px-5 md:text-xs"
         >
           Wholesale & Reseller
         </button>
       </header>
+      <nav className="fixed left-1/2 top-[68px] z-[80] flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-white/15 bg-black/55 px-2 py-1 backdrop-blur md:hidden">
+        <Link
+          href="/ListProduct"
+          className="rounded-full px-3 py-1 text-[10px] uppercase tracking-wider text-white/75 transition-colors hover:text-white"
+        >
+          Products
+        </Link>
+        <Link
+          href="/Map"
+          className="rounded-full px-3 py-1 text-[10px] uppercase tracking-wider text-white/75 transition-colors hover:text-white"
+        >
+          Customer
+        </Link>
+        <Link
+          href="/about-us"
+          className="rounded-full px-3 py-1 text-[10px] uppercase tracking-wider text-white/75 transition-colors hover:text-white"
+        >
+          About
+        </Link>
+      </nav>
 
       {isFormOpen ? (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 px-4 py-24 backdrop-blur-sm">

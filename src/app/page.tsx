@@ -3,10 +3,12 @@ import HeadphoneScroll from "@/components/headphone-scroll"
 import { Header } from "@/components/ui/header"
 import { Footer } from "@/components/ui/footer"
 import ClipsPage from "./category/page"
+import { EntryPopup } from "@/components/entry-popup"
 
 export default function Home() {
   return (
     <main className="relative bg-[#050505]">
+      <EntryPopup />
       {/* Navigation */}
       <Header />
 
