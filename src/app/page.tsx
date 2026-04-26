@@ -21,7 +21,7 @@ export default function Home() {
             <h2 className="max-w-2xl text-3xl font-semibold tracking-tight text-white md:text-4xl lg:text-5xl">
             </h2>
           </div>
-          <div className="h-[90%] w-full overflow-hidden bg-black rounded-3xl">
+          <div className="h-[90%] min-h-[480px] w-full overflow-hidden bg-black rounded-3xl">
             <ArtGallerySlider />
           </div>
 

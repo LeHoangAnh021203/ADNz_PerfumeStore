@@ -82,8 +82,8 @@ export function ArtGallerySlider() {
                 />
             </AnimatePresence>
 
-            {/* Blur overlay */}
-            <div className="absolute inset-0 backdrop-blur-3xl" />
+            {/* Blur overlay — desktop only, backdrop-blur-3xl is extremely heavy on mobile GPU */}
+            <div className="absolute inset-0 hidden md:block backdrop-blur-3xl" />
 
             {/* Header */}
             <header className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-8">
@@ -130,6 +130,7 @@ export function ArtGallerySlider() {
                             index={index}
                             currentIndex={currentIndex}
                             onClick={() => handleBrandClick(artwork.title)}
+                            isMobile={isMobile}
                         />
                     ))}
                 </motion.div>

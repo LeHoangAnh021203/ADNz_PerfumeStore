@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { projects as initialProjects, type Project } from "../../lib/data"
-import type { Perfume } from "../../types/perfume"
 import { ProjectFolder } from "../../components/project-folder"
 import { Toaster } from "sonner"
 import { FullpageLoader } from "../../components/fullpage-loader"
@@ -105,16 +104,19 @@ export default function ClipsPage({ includeFooter = true }: { includeFooter?: bo
 
         async function fetchCountsFromMongo() {
             try {
-                const response = await fetch("/api/perfumes", { cache: "no-store" })
+                // Dedicated aggregation endpoint — much faster, no full collection fetch
+                const response = await fetch("/api/category-counts", { cache: "no-store" })
                 if (!response.ok) return
 
-                const perfumes = (await response.json()) as Perfume[]
+                const rawCounts = (await response.json()) as Record<string, number>
                 const nextCounts: Record<string, number> = {}
 
-                for (const perfume of perfumes) {
-                    const key = normalizeCategory(perfume.category || "")
+                // Normalize raw MongoDB category keys to match project titles
+                for (const [category, count] of Object.entries(rawCounts)) {
+                    const key = normalizeCategory(category)
                     if (!key) continue
-                    nextCounts[key] = (nextCounts[key] || 0) + 1
+                    // Accumulate in case multiple raw values normalize to same key
+                    nextCounts[key] = (nextCounts[key] || 0) + count
                 }
 
                 if (!cancelled) {

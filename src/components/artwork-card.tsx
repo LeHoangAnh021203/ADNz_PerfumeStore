@@ -11,12 +11,15 @@ interface ArtworkCardProps {
     index: number
     currentIndex: number
     onClick?: () => void
+    isMobile?: boolean
 }
 
-export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex, onClick }: ArtworkCardProps) {
+export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex, onClick, isMobile }: ArtworkCardProps) {
     const [isHovered, setIsHovered] = useState(false)
     const distance = index - currentIndex
-    const parallaxOffset = dragOffset * (0.1 * (distance + 1))
+
+    // Parallax and 3D rotation disabled on mobile — expensive per-frame math on touch events
+    const parallaxOffset = isMobile ? 0 : dragOffset * (0.1 * (distance + 1))
 
     return (
         <motion.div
@@ -24,14 +27,12 @@ export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex
             animate={{
                 scale: isActive ? 1 : 0.85,
                 opacity: isActive ? 1 : 0.5,
-                rotateY: distance * 5,
+                rotateY: isMobile ? 0 : distance * 5,
             }}
             transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
-            style={{
-                x: parallaxOffset,
-            }}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            style={{ x: parallaxOffset }}
+            onMouseEnter={() => { if (!isMobile) setIsHovered(true) }}
+            onMouseLeave={() => { if (!isMobile) setIsHovered(false) }}
             onClick={() => {
                 if (Math.abs(dragOffset) < 8) {
                     onClick?.()
@@ -41,22 +42,24 @@ export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex
             <motion.div
                 className="group relative overflow-hidden rounded-2xl cursor-pointer"
                 animate={{
-                    y: isHovered && isActive ? -10 : 0,
-                    boxShadow: isHovered && isActive ? "0 40px 80px -20px rgba(0,0,0,0.8)" : "0 20px 40px -10px rgba(0,0,0,0.5)",
+                    y: isHovered && isActive && !isMobile ? -10 : 0,
+                    boxShadow: isHovered && isActive && !isMobile
+                        ? "0 40px 80px -20px rgba(0,0,0,0.8)"
+                        : "0 20px 40px -10px rgba(0,0,0,0.5)",
                 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
             >
-                {/* Glassmorphism frame */}
-                <div className="absolute inset-0 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm" />
+                {/* Glassmorphism frame — backdrop-blur removed on mobile (expensive per card) */}
+                <div className={`absolute inset-0 rounded-2xl border border-white/10 bg-white/5 ${isMobile ? "" : "backdrop-blur-sm"}`} />
 
                 {/* Image container */}
-                <div className="relative h-[400px] w-[400px] overflow-hidden rounded-2xl p-3 md:h-[500px] md:w-[500px]">
+                <div className="relative h-[360px] w-[360px] overflow-hidden rounded-2xl p-3 md:h-[500px] md:w-[500px]">
                     <motion.img
                         src={artwork.image}
                         alt={artwork.title}
                         className="h-full w-full rounded-xl object-cover"
                         animate={{
-                            scale: isHovered && isActive ? 1.05 : 1,
+                            scale: isHovered && isActive && !isMobile ? 1.05 : 1,
                         }}
                         transition={{ duration: 0.4, ease: "easeOut" }}
                         crossOrigin="anonymous"
@@ -69,14 +72,14 @@ export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex
                         initial={{ opacity: 0, height: "30%" }}
                         animate={{
                             opacity: isActive ? 1 : 0,
-                            height: isHovered ? "50%" : "30%",
+                            height: isHovered && !isMobile ? "50%" : "30%",
                         }}
                         transition={{ duration: 0.3 }}
                     />
 
                     {/* Artwork info */}
                     <motion.div
-                        className="absolute inset-x-3 bottom-3 select-none p-6"
+                        className="absolute inset-x-3 bottom-3 select-none p-4 md:p-6"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{
                             opacity: isActive ? 1 : 0,
@@ -86,14 +89,14 @@ export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex
                     >
                         <motion.p
                             className="mb-1 font-mono text-xs uppercase tracking-widest text-white/50"
-                            animate={{ y: isHovered ? -5 : 0 }}
+                            animate={{ y: isHovered && !isMobile ? -5 : 0 }}
                             transition={{ duration: 0.3 }}
                         >
                             {artwork.year}
                         </motion.p>
                         <motion.h2
-                            className="font-serif text-2xl font-bold text-white md:text-3xl"
-                            animate={{ y: isHovered ? -5 : 0 }}
+                            className="font-serif text-xl font-bold text-white md:text-3xl"
+                            animate={{ y: isHovered && !isMobile ? -5 : 0 }}
                             transition={{ duration: 0.3, delay: 0.05 }}
                         >
                             {artwork.title}
@@ -102,8 +105,8 @@ export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex
                             className="mt-2 text-sm text-white/70"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{
-                                opacity: isHovered ? 1 : 0,
-                                y: isHovered ? 0 : 10,
+                                opacity: isHovered && !isMobile ? 1 : 0,
+                                y: isHovered && !isMobile ? 0 : 10,
                             }}
                             transition={{ duration: 0.3, delay: 0.1 }}
                         >
@@ -113,15 +116,17 @@ export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex
                 </div>
             </motion.div>
 
-            {/* Reflection effect */}
-            <motion.div
-                className="absolute -bottom-20 left-3 right-3 h-20 overflow-hidden rounded-2xl opacity-20 blur-sm"
-                style={{
-                    background: `linear-gradient(to bottom, rgba(255,255,255,0.1), transparent)`,
-                    transform: "scaleY(-1)",
-                }}
-                animate={{ opacity: isActive ? 0.15 : 0.05 }}
-            />
+            {/* Reflection effect — skip on mobile */}
+            {!isMobile && (
+                <motion.div
+                    className="absolute -bottom-20 left-3 right-3 h-20 overflow-hidden rounded-2xl opacity-20 blur-sm"
+                    style={{
+                        background: `linear-gradient(to bottom, rgba(255,255,255,0.1), transparent)`,
+                        transform: "scaleY(-1)",
+                    }}
+                    animate={{ opacity: isActive ? 0.15 : 0.05 }}
+                />
+            )}
         </motion.div>
     )
 }

@@ -46,14 +46,14 @@ export function EntryPopup() {
             }}
             className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-white/90"
           >
-            Inbox
+            Detail
           </button>
           <button
             type="button"
             onClick={() => setIsOpen(false)}
             className="rounded-lg border border-white/30 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
           >
-            Lướt web
+            Continue
           </button>
         </div>
       </div>

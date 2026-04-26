@@ -92,9 +92,29 @@
   }
 }
 
-/* Add smooth scrolling and custom scrollbar */
-html {
-  scroll-behavior: smooth;
+/* Smooth scroll desktop only — causes jank on iOS */
+@media (min-width: 768px) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Remove 300ms tap delay and gray flash on all tappable elements */
+a,
+button,
+[role="button"],
+input[type="submit"],
+input[type="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Mobile scroll performance */
+@media (max-width: 767px) {
+  body {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
 }
 
 ::-webkit-scrollbar {

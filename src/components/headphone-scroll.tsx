@@ -13,7 +13,88 @@ function getFramePath(index: number): string {
     return `${IMAGE_PATH}${paddedIndex}.jpg`
 }
 
-export default function HeadphoneScroll() {
+function MobileHero() {
+    return (
+        <div className="relative flex h-screen w-full flex-col items-start justify-end overflow-hidden px-6 pb-24">
+            {/* Static first frame as background — no canvas, no 240 images loaded */}
+            <div className="absolute inset-0">
+                <img
+                    src="/frames/00000.jpg"
+                    alt=""
+                    aria-hidden="true"
+                    className="h-full w-full object-cover"
+                    loading="eager"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-[#050505]/20" />
+            </div>
+
+            <div className="relative z-10 w-full">
+                <motion.p
+                    className="mb-3 text-[10px] font-semibold uppercase tracking-[0.5em] text-white/60"
+                    initial={{ y: 10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2, duration: 0.6 }}
+                >
+                    Introducing
+                </motion.p>
+
+                <motion.h1
+                    className="text-7xl font-bold tracking-tighter text-white"
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.4, duration: 0.7 }}
+                    style={{ textShadow: "0 4px 30px rgba(0,0,0,0.5)" }}
+                >
+                    ADNz
+                </motion.h1>
+
+                <motion.p
+                    className="mt-3 text-base tracking-wide text-white/65"
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.55, duration: 0.7 }}
+                >
+                    Perfume Store From Viet Nam
+                </motion.p>
+
+                <motion.div
+                    className="mt-4 flex flex-wrap gap-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.7, duration: 0.5 }}
+                >
+                    {["Creativity in Scent", "Diversity in Identity", "Stable in Price"].map((label) => (
+                        <span
+                            key={label}
+                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] tracking-wide text-white/50"
+                        >
+                            {label}
+                        </span>
+                    ))}
+                </motion.div>
+
+                <motion.div
+                    className="mt-8"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.9, duration: 0.5 }}
+                >
+                    <Link
+                        href="/ListProduct"
+                        className="inline-block rounded-full bg-white px-8 py-3.5 text-sm font-semibold tracking-wide text-black active:scale-95 transition-transform"
+                    >
+                        Shopping Now
+                    </Link>
+                </motion.div>
+            </div>
+        </div>
+    )
+}
+
+// Desktop scrollytelling extracted into its own component so that
+// useScroll's containerRef is only called when this subtree actually renders.
+// Keeping it here avoids the "ref not hydrated" Framer Motion error.
+function DesktopScrollytelling() {
     const containerRef = useRef<HTMLDivElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const [images, setImages] = useState<HTMLImageElement[]>([])
@@ -32,7 +113,7 @@ export default function HeadphoneScroll() {
         restDelta: 0.001,
     })
 
-    // Preload all images
+    // Preload 240 frames
     useEffect(() => {
         const loadedImages: HTMLImageElement[] = []
         let loadedCount = 0
@@ -69,7 +150,7 @@ export default function HeadphoneScroll() {
         }
     }, [])
 
-    // Draw frame to canvas
+    // Canvas render loop
     useEffect(() => {
         if (!isLoaded || images.length === 0) return
 
@@ -85,8 +166,8 @@ export default function HeadphoneScroll() {
             const img = images[frameIndex]
             if (!img || !img.complete || img.naturalWidth === 0) return
 
-            // Set canvas size to match image aspect ratio
-            const dpr = window.devicePixelRatio || 1
+            // Cap DPR at 1.5 — avoids 4x rendering cost on high-density displays
+            const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
             const containerWidth = canvas.clientWidth
             const containerHeight = canvas.clientHeight
 
@@ -168,16 +249,12 @@ export default function HeadphoneScroll() {
 
             {/* Scroll Container */}
             <div ref={containerRef} className="relative w-full h-[700vh]">
-                {/* Sticky Canvas */}
                 <div className="sticky top-0 flex h-screen w-full items-center justify-center overflow-hidden">
                     <canvas ref={canvasRef} className="h-[90%] w-[90%] rounded-3xl" />
 
-                    {/* Text Overlays */}
                     <div className="pointer-events-none absolute inset-0">
                         <motion.div className="absolute inset-x-0 bottom-0" style={{ opacity: titleOpacity }}>
-                            {/* Gradient backdrop for text readability */}
                             <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent" />
-
                             <div className="relative px-6 pb-16 md:px-12 md:pb-20 lg:px-20">
                                 <motion.p
                                     className="mb-4 text-[10px] font-semibold uppercase tracking-[0.5em] text-white/70"
@@ -291,4 +368,16 @@ export default function HeadphoneScroll() {
             </div>
         </>
     )
+}
+
+export default function HeadphoneScroll() {
+    const [isMobile, setIsMobile] = useState<boolean | null>(null)
+
+    useEffect(() => {
+        setIsMobile(window.innerWidth < 768)
+    }, [])
+
+    if (isMobile === null) return null
+    if (isMobile) return <MobileHero />
+    return <DesktopScrollytelling />
 }
