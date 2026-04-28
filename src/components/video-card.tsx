@@ -37,28 +37,38 @@ export function VideoCard({ project, isHovered, onHoverChange }: VideoCardProps)
         <div
             className={cn(
                 "group relative rounded-[2.5rem] overflow-hidden",
-                "cursor-none",
+                "cursor-default md:cursor-none",
                 "transition-all duration-[800ms] ease-[cubic-bezier(0.4,0,0.2,1)]",
-                "h-[600px] min-w-[180px]",
-                isHovered ? "flex-[2] shadow-2xl shadow-white/10" : "flex-[0.8] opacity-90",
+                "h-[420px] w-full md:h-[600px] md:min-w-[180px]",
+                isHovered ? "md:flex-[2] shadow-2xl shadow-white/10" : "md:flex-[0.8] md:opacity-90",
             )}
             onMouseEnter={() => onHoverChange(true)}
             onMouseLeave={() => onHoverChange(false)}
         >
             {/* Thumbnail Image */}
-            <div className={cn("absolute inset-0 transition-opacity duration-700", isHovered ? "opacity-0" : "opacity-100")}>
+            <div
+                className={cn(
+                    "absolute inset-0 transition-opacity duration-700",
+                    isHovered ? "md:opacity-0" : "opacity-100",
+                )}
+            >
                 <img
                     src={project.thumbnail || "/placeholder.svg"}
                     alt={project.title}
                     className={cn(
                         "w-full h-full object-cover transition-all duration-700",
-                        !isHovered && "grayscale brightness-75",
+                        !isHovered && "md:grayscale md:brightness-75",
                     )}
                 />
             </div>
 
             {/* Video */}
-            <div className={cn("absolute inset-0 transition-opacity duration-700", isHovered ? "opacity-100" : "opacity-0")}>
+            <div
+                className={cn(
+                    "absolute inset-0 transition-opacity duration-700",
+                    isHovered ? "md:opacity-100" : "md:opacity-0",
+                )}
+            >
                 <video
                     ref={videoRef}
                     className="w-full h-full object-cover"
@@ -74,25 +84,25 @@ export function VideoCard({ project, isHovered, onHoverChange }: VideoCardProps)
 
             <div
                 className={cn(
-                    "absolute bottom-0 left-0 right-0 p-8",
+                    "absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8",
                     "transition-all duration-700",
-                    isHovered ? "opacity-100" : "opacity-0 pointer-events-none",
+                    isHovered ? "md:opacity-100" : "md:opacity-0 md:pointer-events-none",
                 )}
             >
                 {/* Glassmorphic card */}
                 <div
                     className={cn(
-                        "relative backdrop-blur-xl bg-black/20 rounded-2xl p-6 border border-white/10",
+                        "relative rounded-2xl border border-white/10 bg-black/30 p-4 backdrop-blur-xl sm:p-5 md:p-6",
                         "shadow-2xl",
                         "transition-all duration-700 ease-out",
-                        isHovered ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0",
+                        isHovered ? "md:translate-y-0 md:opacity-100" : "md:translate-y-8 md:opacity-0",
                     )}
                 >
                     <div className="space-y-1 text-left">
-                        <h3 className="text-white font-mono text-sm tracking-[0.3em] uppercase font-medium leading-relaxed">
+                        <h3 className="font-mono text-xs font-medium uppercase leading-relaxed tracking-[0.22em] text-white sm:text-sm sm:tracking-[0.3em]">
                             {project.title}
                         </h3>
-                        <p className="text-white/80 font-mono text-xs tracking-[0.25em] uppercase leading-relaxed">
+                        <p className="font-mono text-[11px] uppercase leading-relaxed tracking-[0.16em] text-white/85 sm:text-xs sm:tracking-[0.25em]">
                             {project.category}
                         </p>
                         <div className="pt-3 mt-3 border-t border-white/10">

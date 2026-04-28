@@ -11,29 +11,25 @@ import { Footer } from "@/components/ui/footer";
 
 export default function Home() {
     return (
-        <main className="font-mono min-h-screen w-full relative overflow-hidden flex flex-col md:block px-6 pt-12 md:pt-16 bg-gradient-to-b from-[#05070b] to-[#0a0d14] text-zinc-100 [--ds-background-100:#05070b] [--ds-background-200:#0b1020] [--ds-gray-1000:#f4f4f5] [--ds-gray-900:#c4c7cf] [--ds-gray-500:#71717a] [--ds-gray-400:#3f3f46] [--ds-gray-200:#27272a]">
-                  <Header/>
-            <div className="w-full space-y-1.5 mx-auto mt-1 mb-12">
+        <main className="relative min-h-screen w-full overflow-hidden bg-gradient-to-b from-[#05070b] to-[#0a0d14] px-3 pb-12 pt-[124px] font-mono text-zinc-100 md:block md:px-6 md:pb-0 md:pt-16 [--ds-background-100:#05070b] [--ds-background-200:#0b1020] [--ds-gray-1000:#f4f4f5] [--ds-gray-900:#c4c7cf] [--ds-gray-500:#71717a] [--ds-gray-400:#3f3f46] [--ds-gray-200:#27272a]">
+            <Header />
+            <div className="mx-auto mt-1 w-full space-y-2 md:mb-12 md:space-y-1.5">
                 <MapMetricsProvider>
                     <div className="flex flex-col min-[961px]:hidden">
-                        <header className="flex flex-col items-start font-mono text-sm uppercase gap-2 mb-6">
-                            <p className="text-zinc-100 font-mono my-0 whitespace-nowrap">
-                                Black Friday - Cyber Monday{" "}
-                                <span className="block font-mono text-zinc-400">
-                                    [11.28.25 - 12.01.25]
-                                </span>
-                            </p>
+                        <header className="mb-4 flex flex-col items-start gap-1 text-sm uppercase">
+                            <p className="my-0 text-zinc-100">Visitor Dashboard</p>
+                            <span className="text-xs text-zinc-400">Realtime by country / city / district</span>
                         </header>
 
-                        <section className="pb-6 w-full">
-                            <div className="flex flex-col gap-y-6">
+                        <section className="w-full pb-5">
+                            <div className="flex flex-col gap-y-5">
                                 <TotalRequests />
                                 <TopCountries />
                             </div>
                             <RegionCount />
                         </section>
 
-                        <div className="w-full flex justify-center pointer-events-none">
+                        <div className="pointer-events-none mb-3 w-full">
                             <MapContainer />
                         </div>
                     </div>
@@ -58,12 +54,12 @@ export default function Home() {
                         </div>
                     </div>
 
-                    <section className="mt-8">
+                    <section className="mt-4 md:mt-8">
                         <StatsGrid />
                     </section>
                 </MapMetricsProvider>
             </div>
-            <Footer/>
+            <Footer />
         </main>
     );
 }

@@ -48,7 +48,7 @@ export function ArtGallerySlider() {
 
     const colors = useColorExtraction(artworks)
     const currentColors = useCurrentColors(colors, artworks[currentIndex]?.id)
-    const slideWidth = isMobile ? 432 : 564
+    const slideWidth = isMobile ? 292 : 564
 
     const handleBrandClick = (title: string) => {
         const brand = brandRouteMap[title]
@@ -82,23 +82,23 @@ export function ArtGallerySlider() {
                 />
             </AnimatePresence>
 
-            {/* Blur overlay — desktop only, backdrop-blur-3xl is extremely heavy on mobile GPU */}
-            <div className="absolute inset-0 hidden md:block backdrop-blur-3xl" />
+            {/* Blur overlay */}
+            <div className="absolute inset-0 backdrop-blur-3xl" />
 
             {/* Header */}
-            <header className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-8">
+            <header className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-4 md:p-8">
                 <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                    <h1 className="font-serif text-2xl font-bold tracking-tight text-white/90">Top 10 of brands</h1>
+                    <h1 className="font-serif text-lg font-bold tracking-tight text-white/90 md:text-2xl">Top 10 of brands</h1>
                 </motion.div>
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-md"
+                    className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-md md:px-4 md:py-2"
                 >
-                    <span className="text-sm text-white/60">{String(currentIndex + 1).padStart(2, "0")}</span>
+                    <span className="text-xs text-white/60 md:text-sm">{String(currentIndex + 1).padStart(2, "0")}</span>
                     <span className="text-white/30">/</span>
-                    <span className="text-sm text-white/40">{String(artworks.length).padStart(2, "0")}</span>
+                    <span className="text-xs text-white/40 md:text-sm">{String(artworks.length).padStart(2, "0")}</span>
                 </motion.div>
             </header>
 
@@ -115,7 +115,7 @@ export function ArtGallerySlider() {
                 onTouchEnd={handleDragEnd}
             >
                 <motion.div
-                    className="flex items-center gap-8 px-[calc(50vw-200px)] md:gap-16 md:px-[calc(50vw-250px)]"
+                    className="flex items-center gap-4 px-[calc(50vw-136px)] md:gap-16 md:px-[calc(50vw-250px)]"
                     animate={{
                         x: -currentIndex * slideWidth + dragX,
                     }}
@@ -129,8 +129,8 @@ export function ArtGallerySlider() {
                             dragOffset={dragX}
                             index={index}
                             currentIndex={currentIndex}
-                            onClick={() => handleBrandClick(artwork.title)}
                             isMobile={isMobile}
+                            onClick={() => handleBrandClick(artwork.title)}
                         />
                     ))}
                 </motion.div>

@@ -33,19 +33,33 @@ export function Footer() {
           <div className="flex flex-col justify-center">
             <p className="text-sm text-white/40">Ship worldwide</p>
             <p className="mt-1 text-2xl font-semibold text-white">Since 2024</p>
+            <div className="mt-6 flex flex-col gap-3">
+              <div className="flex items-center gap-3  px-4 py-3 text-sm text-white/70">
+                <img src="https://cdn-icons-png.flaticon.com/512/2991/2991231.png" alt="Google Maps icon" className="h-4 w-4 shrink-0" />
+                <span>Branch 01: 120 Cầu Giấy, Dịch Vọng, Cầu Giấy, Hà Nội.</span>
+              </div>
+              <div className="flex items-center gap-3 px-4 py-3 text-sm text-white/70">
+                <img src="https://cdn-icons-png.flaticon.com/512/2991/2991231.png" alt="Google Maps icon" className="h-4 w-4 shrink-0" />
+                <span>Branch 02: 57 Trần Đăng Ninh, Cầu Giấy, Hà Nội.</span>
+              </div>
+              <div className="flex items-center gap-3  px-4 py-3 text-sm text-white/70">
+                <img src="https://cdn-icons-png.flaticon.com/512/2991/2991231.png" alt="Google Maps icon" className="h-4 w-4 shrink-0" />
+                <span>Branch 03: Đường số 59, An Hội Tây, Hồ Chí Minh.</span>
+              </div>
+            </div>
           </div>
         </div>
 
         <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-white/5 pt-8 text-xs text-white/30">
           <span>© 2024 ADNz Perfume</span>
           <div className="flex gap-6">
-            <Link href="#" className="transition-colors hover:text-white/60">
+            <Link href="/privacy" className="transition-colors hover:text-white/60">
               Privacy
             </Link>
-            <Link href="#" className="transition-colors hover:text-white/60">
+            <Link href="/terms" className="transition-colors hover:text-white/60">
               Terms
             </Link>
-            <Link href="#" className="transition-colors hover:text-white/60">
+            <Link href="/contact" className="transition-colors hover:text-white/60">
               Contact
             </Link>
           </div>

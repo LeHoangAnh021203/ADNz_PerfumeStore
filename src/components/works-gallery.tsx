@@ -40,9 +40,11 @@ export function WorksGallery() {
 
     return (
         <>
-            <CustomCursor isActive={hoveredId !== null} />
-            <div className="container mx-auto px-6">
-                <div className="flex gap-4 items-stretch">
+            <div className="hidden md:block">
+                <CustomCursor isActive={hoveredId !== null} />
+            </div>
+            <div className="container mx-auto px-0 sm:px-2 md:px-6">
+                <div className="flex flex-col gap-4 md:flex-row md:items-stretch">
                     {projects.map((project) => (
                         <VideoCard
                             key={project.id}

@@ -6,101 +6,20 @@ import Link from "next/link"
 
 const FRAME_COUNT = 240
 const IMAGE_PATH = "/frames/"
-const MotionLink = motion(Link)
 
 function getFramePath(index: number): string {
-    const paddedIndex = index.toString().padStart(5, "0")
+    const paddedIndex = (index + 1).toString().padStart(5, "0")
     return `${IMAGE_PATH}${paddedIndex}.jpg`
 }
 
-function MobileHero() {
-    return (
-        <div className="relative flex h-screen w-full flex-col items-start justify-end overflow-hidden px-6 pb-24">
-            {/* Static first frame as background — no canvas, no 240 images loaded */}
-            <div className="absolute inset-0">
-                <img
-                    src="/frames/00000.jpg"
-                    alt=""
-                    aria-hidden="true"
-                    className="h-full w-full object-cover"
-                    loading="eager"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-[#050505]/20" />
-            </div>
-
-            <div className="relative z-10 w-full">
-                <motion.p
-                    className="mb-3 text-[10px] font-semibold uppercase tracking-[0.5em] text-white/60"
-                    initial={{ y: 10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.2, duration: 0.6 }}
-                >
-                    Introducing
-                </motion.p>
-
-                <motion.h1
-                    className="text-7xl font-bold tracking-tighter text-white"
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.4, duration: 0.7 }}
-                    style={{ textShadow: "0 4px 30px rgba(0,0,0,0.5)" }}
-                >
-                    ADNz
-                </motion.h1>
-
-                <motion.p
-                    className="mt-3 text-base tracking-wide text-white/65"
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.55, duration: 0.7 }}
-                >
-                    Perfume Store From Viet Nam
-                </motion.p>
-
-                <motion.div
-                    className="mt-4 flex flex-wrap gap-2"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.7, duration: 0.5 }}
-                >
-                    {["Creativity in Scent", "Diversity in Identity", "Stable in Price"].map((label) => (
-                        <span
-                            key={label}
-                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] tracking-wide text-white/50"
-                        >
-                            {label}
-                        </span>
-                    ))}
-                </motion.div>
-
-                <motion.div
-                    className="mt-8"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.9, duration: 0.5 }}
-                >
-                    <Link
-                        href="/ListProduct"
-                        className="inline-block rounded-full bg-white px-8 py-3.5 text-sm font-semibold tracking-wide text-black active:scale-95 transition-transform"
-                    >
-                        Shopping Now
-                    </Link>
-                </motion.div>
-            </div>
-        </div>
-    )
-}
-
-// Desktop scrollytelling extracted into its own component so that
-// useScroll's containerRef is only called when this subtree actually renders.
-// Keeping it here avoids the "ref not hydrated" Framer Motion error.
-function DesktopScrollytelling() {
+export default function HeadphoneScroll() {
     const containerRef = useRef<HTMLDivElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const [images, setImages] = useState<HTMLImageElement[]>([])
     const [loadingProgress, setLoadingProgress] = useState(0)
     const [isLoaded, setIsLoaded] = useState(false)
     const [successCount, setSuccessCount] = useState(0)
+    const [isMobile, setIsMobile] = useState<boolean | null>(null)
 
     const { scrollYProgress } = useScroll({
         target: containerRef,
@@ -113,24 +32,44 @@ function DesktopScrollytelling() {
         restDelta: 0.001,
     })
 
-    // Preload 240 frames
     useEffect(() => {
+        const updateViewport = () => {
+            setIsMobile(window.innerWidth < 768)
+        }
+
+        updateViewport()
+        window.addEventListener("resize", updateViewport)
+        return () => window.removeEventListener("resize", updateViewport)
+    }, [])
+
+    // Preload all images
+    useEffect(() => {
+        if (isMobile === null) return
+
+        setImages([])
+        setIsLoaded(false)
+        setLoadingProgress(0)
+        setSuccessCount(0)
+
         const loadedImages: HTMLImageElement[] = []
         let loadedCount = 0
         let successfulLoads = 0
+        const frameStep = isMobile ? 4 : 1
+        const frameIndexes = Array.from({ length: Math.ceil(FRAME_COUNT / frameStep) }, (_, i) => i * frameStep)
+        const totalFrames = frameIndexes.length
 
-        for (let i = 0; i < FRAME_COUNT; i++) {
+        frameIndexes.forEach((frameIndex, imageIndex) => {
             const img = new Image()
             img.crossOrigin = "anonymous"
-            img.src = getFramePath(i)
+            img.src = getFramePath(frameIndex)
 
             img.onload = () => {
                 loadedCount++
                 successfulLoads++
-                setLoadingProgress(Math.round((loadedCount / FRAME_COUNT) * 100))
+                setLoadingProgress(Math.round((loadedCount / totalFrames) * 100))
                 setSuccessCount(successfulLoads)
 
-                if (loadedCount === FRAME_COUNT && successfulLoads > 0) {
+                if (loadedCount === totalFrames && successfulLoads > 0) {
                     setImages(loadedImages)
                     setIsLoaded(true)
                 }
@@ -138,19 +77,19 @@ function DesktopScrollytelling() {
 
             img.onerror = () => {
                 loadedCount++
-                setLoadingProgress(Math.round((loadedCount / FRAME_COUNT) * 100))
+                setLoadingProgress(Math.round((loadedCount / totalFrames) * 100))
 
-                if (loadedCount === FRAME_COUNT && successfulLoads > 0) {
+                if (loadedCount === totalFrames && successfulLoads > 0) {
                     setImages(loadedImages)
                     setIsLoaded(true)
                 }
             }
 
-            loadedImages[i] = img
-        }
-    }, [])
+            loadedImages[imageIndex] = img
+        })
+    }, [isMobile])
 
-    // Canvas render loop
+    // Draw frame to canvas
     useEffect(() => {
         if (!isLoaded || images.length === 0) return
 
@@ -161,20 +100,20 @@ function DesktopScrollytelling() {
         if (!ctx) return
 
         const render = () => {
-            const frameIndex = Math.min(FRAME_COUNT - 1, Math.max(0, Math.floor(smoothProgress.get() * (FRAME_COUNT - 1))))
+            const frameIndex = Math.min(images.length - 1, Math.max(0, Math.floor(smoothProgress.get() * (images.length - 1))))
 
             const img = images[frameIndex]
             if (!img || !img.complete || img.naturalWidth === 0) return
 
-            // Cap DPR at 1.5 — avoids 4x rendering cost on high-density displays
-            const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
+            // Set canvas size to match image aspect ratio
+            const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2)
             const containerWidth = canvas.clientWidth
             const containerHeight = canvas.clientHeight
 
             canvas.width = containerWidth * dpr
             canvas.height = containerHeight * dpr
 
-            ctx.scale(dpr, dpr)
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
             ctx.clearRect(0, 0, containerWidth, containerHeight)
 
             const imgAspect = img.width / img.height
@@ -182,7 +121,20 @@ function DesktopScrollytelling() {
 
             let drawWidth, drawHeight, drawX, drawY
 
-            if (imgAspect > canvasAspect) {
+            if (isMobile) {
+                // Mobile: contain to avoid extreme crop/zoom on tall viewports.
+                if (imgAspect > canvasAspect) {
+                    drawWidth = containerWidth
+                    drawHeight = containerWidth / imgAspect
+                    drawX = 0
+                    drawY = (containerHeight - drawHeight) / 2
+                } else {
+                    drawHeight = containerHeight
+                    drawWidth = containerHeight * imgAspect
+                    drawX = (containerWidth - drawWidth) / 2
+                    drawY = 0
+                }
+            } else if (imgAspect > canvasAspect) {
                 drawHeight = containerHeight
                 drawWidth = containerHeight * imgAspect
                 drawX = (containerWidth - drawWidth) / 2
@@ -205,7 +157,7 @@ function DesktopScrollytelling() {
             unsubscribe()
             window.removeEventListener("resize", render)
         }
-    }, [isLoaded, images, smoothProgress])
+    }, [isLoaded, images, isMobile, smoothProgress])
 
     const titleOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0])
     const precisionOpacity = useTransform(scrollYProgress, [0.18, 0.28, 0.42, 0.52], [0, 1, 1, 0])
@@ -248,14 +200,24 @@ function DesktopScrollytelling() {
             )}
 
             {/* Scroll Container */}
-            <div ref={containerRef} className="relative w-full h-[700vh]">
+            <div ref={containerRef} className={`relative w-full ${isMobile ? "h-[420vh]" : "h-[700vh]"}`}>
+                {/* Sticky Canvas */}
                 <div className="sticky top-0 flex h-screen w-full items-center justify-center overflow-hidden">
-                    <canvas ref={canvasRef} className="h-[90%] w-[90%] rounded-3xl" />
+                    <img
+                        src={getFramePath(0)}
+                        alt=""
+                        aria-hidden="true"
+                        className="absolute left-1/2 top-1/2 h-[90%] w-[90%] -translate-x-1/2 -translate-y-1/2 rounded-3xl object-contain md:object-cover"
+                    />
+                    <canvas ref={canvasRef} className="relative h-[90%] w-[90%] rounded-3xl" />
 
+                    {/* Text Overlays */}
                     <div className="pointer-events-none absolute inset-0">
                         <motion.div className="absolute inset-x-0 bottom-0" style={{ opacity: titleOpacity }}>
+                            {/* Gradient backdrop for text readability */}
                             <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent" />
-                            <div className="relative px-6 pb-16 md:px-12 md:pb-20 lg:px-20">
+
+                            <div className="relative px-5 pb-20 md:px-12 md:pb-20 lg:px-20">
                                 <motion.p
                                     className="mb-4 text-[10px] font-semibold uppercase tracking-[0.5em] text-white/70"
                                     initial={{ y: 10, opacity: 0 }}
@@ -265,7 +227,7 @@ function DesktopScrollytelling() {
                                     Introducing
                                 </motion.p>
                                 <motion.h1
-                                    className="text-6xl font-bold tracking-tighter text-white md:text-8xl lg:text-9xl"
+                                    className="text-5xl font-bold tracking-tighter text-white md:text-8xl lg:text-9xl"
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.5, duration: 0.8 }}
@@ -274,7 +236,7 @@ function DesktopScrollytelling() {
                                     ADNz
                                 </motion.h1>
                                 <motion.p
-                                    className="mt-4 max-w-md text-base font-normal tracking-wide text-white/70 md:text-lg"
+                                    className="mt-3 max-w-md text-sm font-normal tracking-wide text-white/70 md:mt-4 md:text-lg"
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.7, duration: 0.8 }}
@@ -304,17 +266,17 @@ function DesktopScrollytelling() {
 
                         <motion.div className="absolute bottom-0 left-0 right-0" style={{ opacity: precisionOpacity }}>
                             <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/70 to-transparent" />
-                            <div className="relative px-6 pb-16 md:px-12 md:pb-20 lg:px-20">
+                            <div className="relative px-5 pb-20 md:px-12 md:pb-20 lg:px-20">
                                 <p className="mb-3 font-mono text-[10px] font-medium uppercase tracking-[0.4em] text-white/60">01</p>
                                 <h2
-                                    className="text-4xl font-bold tracking-tight text-white md:text-5xl lg:text-6xl"
+                                    className="text-3xl font-bold tracking-tight text-white md:text-5xl lg:text-6xl"
                                     style={{ textShadow: "0 4px 30px rgba(0,0,0,0.4)" }}
                                 >
                                     Creativity in
                                     <br />
                                     Scent.
                                 </h2>
-                                <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/60 md:text-base">
+                                <p className="mt-3 max-w-xs text-xs leading-relaxed text-white/60 md:mt-4 md:max-w-sm md:text-base">
                                     Diverse product sources and diverse scents to suit all customers.
                                 </p>
                             </div>
@@ -322,18 +284,18 @@ function DesktopScrollytelling() {
 
                         <motion.div className="absolute bottom-0 left-0 right-0" style={{ opacity: titaniumOpacity }}>
                             <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/70 to-transparent" />
-                            <div className="relative flex justify-end px-6 pb-16 md:px-12 md:pb-20 lg:px-20">
+                            <div className="relative flex justify-end px-5 pb-20 md:px-12 md:pb-20 lg:px-20">
                                 <div className="text-right">
                                     <p className="mb-3 font-mono text-[10px] font-medium uppercase tracking-[0.4em] text-white/60">02</p>
                                     <h2
-                                        className="text-4xl font-bold tracking-tight text-white md:text-5xl lg:text-6xl"
+                                        className="text-3xl font-bold tracking-tight text-white md:text-5xl lg:text-6xl"
                                         style={{ textShadow: "0 4px 30px rgba(0,0,0,0.4)" }}
                                     >
                                         Diversity in
                                         <br />
                                         Identity.
                                     </h2>
-                                    <p className="ml-auto mt-4 max-w-sm text-sm leading-relaxed text-white/60 md:text-base">
+                                    <p className="ml-auto mt-3 max-w-xs text-xs leading-relaxed text-white/60 md:mt-4 md:max-w-sm md:text-base">
                                         Offering many different identities, you are free to choose
                                     </p>
                                 </div>
@@ -342,25 +304,25 @@ function DesktopScrollytelling() {
 
                         <motion.div className="absolute bottom-0 left-0 right-0" style={{ opacity: finalOpacity }}>
                             <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent" />
-                            <div className="relative px-6 pb-16 md:px-12 md:pb-20 lg:px-20">
+                            <div className="relative px-5 pb-20 md:px-12 md:pb-20 lg:px-20">
                                 <p className="mb-3 font-mono text-[10px] font-medium uppercase tracking-[0.4em] text-white/60">03</p>
                                 <h2
-                                    className="text-4xl font-bold tracking-tight text-white md:text-5xl lg:text-6xl"
+                                    className="text-3xl font-bold tracking-tight text-white md:text-5xl lg:text-6xl"
                                     style={{ textShadow: "0 4px 30px rgba(0,0,0,0.4)" }}
                                 >
                                     Stable in Price
                                 </h2>
-                                <p className="mt-4 max-w-md text-sm leading-relaxed text-white/60 md:text-base">
+                                <p className="mt-3 max-w-xs text-xs leading-relaxed text-white/60 md:mt-4 md:max-w-md md:text-base">
                                     Committed to stable and affordable prices, reputable and quality goods sources
                                 </p>
-                                <MotionLink
-                                    href="/ListProduct"
-                                    className="pointer-events-auto mt-8 rounded-full bg-white px-8 py-4 text-sm font-semibold tracking-wide text-black transition-all hover:bg-white/90"
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                >
-                                    Shopping Now
-                                </MotionLink>
+                                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="pointer-events-auto mt-6 md:mt-8">
+                                    <Link
+                                        href="/ListProduct"
+                                        className="inline-block rounded-full bg-white px-6 py-3 text-xs font-semibold tracking-wide text-black transition-all hover:bg-white/90 md:px-8 md:py-4 md:text-sm"
+                                    >
+                                        Shopping Now
+                                    </Link>
+                                </motion.div>
                             </div>
                         </motion.div>
                     </div>
@@ -368,16 +330,4 @@ function DesktopScrollytelling() {
             </div>
         </>
     )
-}
-
-export default function HeadphoneScroll() {
-    const [isMobile, setIsMobile] = useState<boolean | null>(null)
-
-    useEffect(() => {
-        setIsMobile(window.innerWidth < 768)
-    }, [])
-
-    if (isMobile === null) return null
-    if (isMobile) return <MobileHero />
-    return <DesktopScrollytelling />
 }

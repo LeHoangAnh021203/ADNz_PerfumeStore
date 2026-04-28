@@ -12,7 +12,7 @@ interface NavigationDotsProps {
 export function NavigationDots({ total, current, onSelect, colors }: NavigationDotsProps) {
     return (
         <motion.div
-            className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-md"
+            className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-2 backdrop-blur-md md:bottom-8 md:gap-2 md:px-4 md:py-3"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}

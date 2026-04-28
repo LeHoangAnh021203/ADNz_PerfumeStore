@@ -205,8 +205,8 @@ function useSharedMapMetrics() {
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-zinc-900/55 p-4 md:p-6 w-full min-h-[120px] border border-zinc-800/80">
-      <h2 className="my-0 mb-4 font-mono font-medium text-sm tracking-tight uppercase text-zinc-200">{title}</h2>
+    <div className="w-full min-h-[120px] border border-zinc-800/80 bg-zinc-900/55 p-3.5 md:p-6">
+      <h2 className="my-0 mb-3 font-mono text-xs font-medium uppercase tracking-tight text-zinc-200 md:mb-4 md:text-sm">{title}</h2>
       {children}
     </div>
   );
@@ -218,7 +218,7 @@ export function TotalRequests() {
   return (
     <div className="space-y-2">
       <h2 className="my-0 font-mono font-medium text-sm tracking-tight uppercase text-zinc-300">Total visitors</h2>
-      <div className="text-4xl md:text-5xl tracking-normal font-mono tabular-nums">
+      <div className="font-mono text-4xl tracking-normal tabular-nums md:text-5xl">
         {formatNumber(metrics.websiteVisits)}
       </div>
       <div className="text-sm text-zinc-400 font-mono tabular-nums">{formatNumber(ratePerSecond)}/s</div>
@@ -237,16 +237,16 @@ export function TopCountries() {
       ) : (
         <ul className="list-none pl-0 space-y-1">
           {metrics.countries.map((country) => (
-            <li key={country.code} className="flex items-center w-full md:w-fit justify-between md:justify-start">
+            <li key={country.code} className="flex w-full items-center justify-between gap-2 md:w-fit md:justify-start">
               <span aria-hidden="true" className="inline-block translate-y-[-2px] translate-x-[2px]">
                 <span style={{ color: country.color }}>■</span>
               </span>
-              <div className="text-left">
-                <h3 className="inline-block my-0 font-medium text-[16px]" style={{ color: country.color }}>
+              <div className="text-left md:min-w-10">
+                <h3 className="my-0 inline-block text-[16px] font-medium" style={{ color: country.color }}>
                   &nbsp;{country.code}
                 </h3>
               </div>
-              <div className="w-[16ch] text-right">
+              <div className="text-right">
                 <span className="inline-flex tabular-nums">{formatNumber(country.visits)}</span>
               </div>
             </li>
@@ -261,7 +261,7 @@ export function RegionCount() {
   const { metrics } = useSharedMapMetrics();
 
   return (
-    <div className="flex items-center w-full md:w-fit justify-between md:justify-start mt-2">
+    <div className="mt-2 flex w-full items-center justify-between md:w-fit md:justify-start">
       <span aria-hidden="true" className="inline-block translate-y-[-2px] translate-x-[2px]">
         <span className="text-[10px]">▲</span>
       </span>
@@ -315,8 +315,8 @@ export function StatsGrid() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1.5">
       <Card title="Countries tracked">
-        <p className="text-4xl md:text-5xl font-mono tabular-nums text-zinc-100 m-0">{formatNumber(metrics.countryCount)}</p>
-        <p className="text-sm text-zinc-400 mt-2 mb-0">
+        <p className="m-0 font-mono text-4xl tabular-nums text-zinc-100 md:text-5xl">{formatNumber(metrics.countryCount)}</p>
+        <p className="mb-0 mt-2 text-sm text-zinc-400">
           {metrics.countries.length > 0
             ? `Top: ${metrics.countries
                 .slice(0, 3)
@@ -327,15 +327,15 @@ export function StatsGrid() {
       </Card>
 
       <Card title="Cities tracked">
-        <p className="text-4xl md:text-5xl font-mono tabular-nums text-zinc-100 m-0">{formatNumber(metrics.cityCount)}</p>
+        <p className="m-0 font-mono text-4xl tabular-nums text-zinc-100 md:text-5xl">{formatNumber(metrics.cityCount)}</p>
         {metrics.topCities.length > 0 ? (
-          <ul className="list-none pl-0 mt-2 mb-0 space-y-1">
+          <ul className="mb-0 mt-2 list-none space-y-1 pl-0">
             {metrics.topCities.slice(0, 3).map((city) => (
               <li key={`${city.country}-${city.name}`} className="flex items-center justify-between gap-2 text-sm">
-                <span className="text-zinc-300 truncate">
+                <span className="truncate text-zinc-300">
                   {city.name}, {city.country}
                 </span>
-                <span className="text-zinc-100 tabular-nums">{formatNumber(city.visits)}</span>
+                <span className="shrink-0 tabular-nums text-zinc-100">{formatNumber(city.visits)}</span>
               </li>
             ))}
           </ul>
@@ -345,18 +345,18 @@ export function StatsGrid() {
       </Card>
 
       <Card title="Districts tracked">
-        <p className="text-4xl md:text-5xl font-mono tabular-nums text-zinc-100 m-0">{formatNumber(metrics.districtCount)}</p>
+        <p className="m-0 font-mono text-4xl tabular-nums text-zinc-100 md:text-5xl">{formatNumber(metrics.districtCount)}</p>
         {metrics.topDistricts.length > 0 ? (
-          <ul className="list-none pl-0 mt-2 mb-0 space-y-1">
+          <ul className="mb-0 mt-2 list-none space-y-1 pl-0">
             {metrics.topDistricts.slice(0, 3).map((district) => (
               <li
                 key={`${district.country}-${district.city}-${district.name}`}
                 className="flex items-center justify-between gap-2 text-sm"
               >
-                <span className="text-zinc-300 truncate">
+                <span className="truncate text-zinc-300">
                   {district.name}, {district.city}
                 </span>
-                <span className="text-zinc-100 tabular-nums">{formatNumber(district.visits)}</span>
+                <span className="shrink-0 tabular-nums text-zinc-100">{formatNumber(district.visits)}</span>
               </li>
             ))}
           </ul>

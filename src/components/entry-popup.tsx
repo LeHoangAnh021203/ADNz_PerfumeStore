@@ -3,7 +3,7 @@
 import Image from "next/image"
 import { useEffect, useState } from "react"
 
-export function EntryPopup() {
+export default function EntryPopup() {
   const [isOpen, setIsOpen] = useState(true)
 
   useEffect(() => {

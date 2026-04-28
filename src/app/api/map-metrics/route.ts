@@ -15,6 +15,30 @@ type MetricDoc = {
   district?: string;
 };
 
+function normalizeMetricKey(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "_")
+    .replace(/[^a-z0-9_-]/g, "");
+}
+
+function normalizeLocationText(value?: string | null) {
+  if (!value) return null;
+
+  let normalized = value.trim().replace(/\+/g, " ");
+  if (!normalized) return null;
+
+  try {
+    normalized = decodeURIComponent(normalized);
+  } catch {
+    // keep original value when malformed
+  }
+
+  normalized = normalized.replace(/\s+/g, " ").trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
 function getCountryName(code: string) {
   try {
     return new Intl.DisplayNames(["en"], { type: "region" }).of(code) ?? code;
@@ -85,24 +109,71 @@ export async function GET() {
       .filter((page) => page.visits > 0)
       .sort((a, b) => b.visits - a.visits);
 
-    const topCities = cityDocs
-      .map((doc) => ({
-        name: doc.city || doc.metric.split(":").pop() || "Unknown",
-        country: doc.country || "??",
-        visits: doc.count ?? 0,
-      }))
-      .filter((city) => city.visits > 0)
+    const cityBuckets = new Map<
+      string,
+      { name: string; country: string; visits: number }
+    >();
+
+    cityDocs.forEach((doc) => {
+      const visits = doc.count ?? 0;
+      if (visits <= 0) return;
+
+      const cityName =
+        normalizeLocationText(doc.city || doc.metric.split(":").pop()) ||
+        "Unknown";
+      const countryCode = normalizeLocationText(doc.country)?.toUpperCase() || "??";
+      const cityKey = `${countryCode}:${normalizeMetricKey(cityName)}`;
+      const current = cityBuckets.get(cityKey);
+
+      if (current) {
+        current.visits += visits;
+        return;
+      }
+
+      cityBuckets.set(cityKey, {
+        name: cityName,
+        country: countryCode,
+        visits,
+      });
+    });
+
+    const topCities = Array.from(cityBuckets.values())
       .sort((a, b) => b.visits - a.visits)
       .slice(0, 5);
 
-    const topDistricts = districtDocs
-      .map((doc) => ({
-        name: doc.district || doc.metric.split(":").pop() || "Unknown",
-        city: doc.city || "Unknown",
-        country: doc.country || "??",
-        visits: doc.count ?? 0,
-      }))
-      .filter((district) => district.visits > 0)
+    const districtBuckets = new Map<
+      string,
+      { name: string; city: string; country: string; visits: number }
+    >();
+
+    districtDocs.forEach((doc) => {
+      const visits = doc.count ?? 0;
+      if (visits <= 0) return;
+
+      const districtName =
+        normalizeLocationText(doc.district || doc.metric.split(":").pop()) ||
+        "Unknown";
+      const cityName = normalizeLocationText(doc.city) || "Unknown";
+      const countryCode = normalizeLocationText(doc.country)?.toUpperCase() || "??";
+      const districtKey = `${countryCode}:${normalizeMetricKey(cityName)}:${normalizeMetricKey(
+        districtName
+      )}`;
+      const current = districtBuckets.get(districtKey);
+
+      if (current) {
+        current.visits += visits;
+        return;
+      }
+
+      districtBuckets.set(districtKey, {
+        name: districtName,
+        city: cityName,
+        country: countryCode,
+        visits,
+      });
+    });
+
+    const topDistricts = Array.from(districtBuckets.values())
       .sort((a, b) => b.visits - a.visits)
       .slice(0, 5);
 
@@ -114,8 +185,8 @@ export async function GET() {
       sourceVisits,
       countries,
       countryCount: countryDocs.length,
-      cityCount: cityDocs.length,
-      districtCount: districtDocs.length,
+      cityCount: cityBuckets.size,
+      districtCount: districtBuckets.size,
       topCities,
       topDistricts,
       uniquePages: pageDocs.length,

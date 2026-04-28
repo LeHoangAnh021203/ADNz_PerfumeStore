@@ -3,9 +3,9 @@
 import { useState } from "react"
 import DynamicFrameLayout from "@/components/software support/DynamicFrameLayout"
 import { ppEditorialNewUltralightItalic, inter } from "./fonts"
-import Image from "next/image"
 import Link from "next/link"
 import { Header } from "@/components/ui/header"
+import { Footer } from "@/components/ui/footer"
 
 export default function SoftwareSupport() {
   const [headerSize] = useState(1.2) // 120% is the default size
@@ -37,12 +37,11 @@ export default function SoftwareSupport() {
                 <h1
                   className={`${ppEditorialNewUltralightItalic.className} text-4xl md:text-6xl font-light italic text-white/80 tracking-tighter leading-[130%]`}
                   style={{ fontSize: `${3 * headerSize}rem` }}
-                >
-                  Brand
+                >Business
                   <br />
-                  Designer
+                  Setup
                   <br />
-                  at ADNz?
+                  Support
                 </h1>
                 <div
                   className={`${inter.className} flex flex-col gap-12 text-white/50 text-sm font-light max-w-[300px]`}
@@ -51,12 +50,14 @@ export default function SoftwareSupport() {
                   <div className="space-y-6">
                     <div className="h-px bg-white/10 w-full" />
                     <p>
-                      We are looking to hire a multi-disciplinary Product & Brand Designer to develop and maintain the brand identity across our web and mobile applications, while effectively communicating the product’s value and story to users.
+                      Our first priority is helping you establish your business with confidence, including company documents, legal procedures, and tax setup.
                     </p>
                     <p>
-                      Working closely with product managers, engineers, and research teams, you will leverage user insights and data to shape a consistent and engaging brand experience across product interfaces, marketing website, in-app interactions, and future digital touchpoints.
+                      We then design your brand and build the digital foundation: website, mobile app, and management software tailored to your operations.
                     </p>
-                    <p>You will combine skills in UI/UX design, interaction design, visual design, and motion design to create intuitive, user-centered experiences. From designing scalable design systems to crafting seamless user journeys, your work will ensure both functional excellence and strong brand consistency across all platforms.</p>
+                    <p>
+                      Finally, we run performance advertising campaigns to help you reach the right audience, generate qualified leads, and scale revenue sustainably.
+                    </p>
                     <div className="h-px bg-white/10 w-full" />
                   </div>
                 </div>
@@ -68,7 +69,7 @@ export default function SoftwareSupport() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Ask For Support
+                Request Support
               </a>
             </div>
 
@@ -79,6 +80,7 @@ export default function SoftwareSupport() {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   )
 }
